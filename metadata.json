@@ -1,0 +1,8 @@
+{
+  "name": "Nairum",
+  "description": "Premium T-shirt fabric brand with a minimalist aesthetic.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
