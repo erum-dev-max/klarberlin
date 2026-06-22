@@ -153,17 +153,17 @@ export default function Hero() {
       <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10 overflow-hidden px-4">
         {/* Large KB Background Text */}
         <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none opacity-40">
-          <span className="text-[12rem] sm:text-[18rem] md:text-[24rem] lg:text-[32rem] xl:text-[40rem] font-black text-gray-500 leading-none select-none mix-blend-overlay">
+          <span className="text-[6rem] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] font-black text-gray-500 leading-none select-none mix-blend-overlay">
             KB
           </span>
         </div>
 
         {/* Foreground Text */}
         <div className="relative z-10 flex flex-col items-center text-center">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-widest uppercase text-white mix-blend-overlay opacity-90 drop-shadow-2xl">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase text-white mix-blend-overlay opacity-90 drop-shadow-2xl">
             Klar Berlin
           </h1>
-          <p className="mt-3 md:mt-5 text-[10px] sm:text-xs md:text-sm lg:text-base font-medium tracking-[0.2em] sm:tracking-[0.3em] uppercase text-gray-300">
+          <p className="mt-2 md:mt-3 text-[8px] sm:text-[10px] md:text-xs lg:text-sm font-medium tracking-[0.2em] sm:tracking-[0.3em] uppercase text-gray-300">
             The New Dimension
           </p>
         </div>
