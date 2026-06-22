@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const STORIES = [
   {
@@ -107,14 +107,27 @@ function StoryCard({ story }: { story: typeof STORIES[0] }) {
 }
 
 function MarqueeRow({ stories }: { stories: typeof STORIES }) {
+  const [isMobile, setIsMobile] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
   const posRef = useRef(0);
   const rafRef = useRef<number>(0);
   const pauseRef = useRef(false);
 
+  useEffect(() => {
+    const checkWidth = () => {
+      // If window width is less than ~768px, we animate (marquee)
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkWidth();
+    window.addEventListener('resize', checkWidth);
+    return () => window.removeEventListener('resize', checkWidth);
+  }, []);
+
   const repeated = [...stories, ...stories, ...stories, ...stories, ...stories, ...stories];
 
   useEffect(() => {
+    if (!isMobile) return;
+
     const track = trackRef.current;
     if (!track) return;
 
@@ -138,7 +151,19 @@ function MarqueeRow({ stories }: { stories: typeof STORIES }) {
 
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [stories]);
+  }, [stories, isMobile]);
+
+  if (!isMobile) {
+    return (
+      <div style={{ display: 'flex', gap: `${CARD_GAP}px`, paddingBottom: '16px' }}>
+        {stories.map((story, i) => (
+          <div key={`${story.label}-${i}`} style={{ width: `${CARD_WIDTH}px`, flexShrink: 0 }}>
+            <StoryCard story={story} />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div
