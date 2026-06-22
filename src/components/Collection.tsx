@@ -1,5 +1,4 @@
-import { useState, useRef, MouseEvent } from 'react';
-import gsap from 'gsap';
+import { useState, useRef, useEffect, MouseEvent } from 'react';
 import { useCart } from '../context/CartContext';
 import { useSearch } from '../context/SearchContext';
 
@@ -202,41 +201,69 @@ function Card({ card }: { card: ShirtCard }) {
   );
 }
 
-// Arrow button
-function Arrow({ dir, onClick, disabled }: { dir: 'left' | 'right'; onClick: () => void; disabled: boolean }) {
+const SPEED = 60; // px per second
+const GAP   = 32; // px — matches the gap-8 class
+
+function InfiniteTrack({ cards }: { cards: ShirtCard[] }) {
+  const trackRef  = useRef<HTMLDivElement>(null);
+  const posRef    = useRef(0);
+  const rafRef    = useRef<number>(0);
+  const pauseRef  = useRef(false);
+  const lastRef   = useRef<number | null>(null);
+
+  // Triple the cards so there's always content to the right while looping
+  const looped = [...cards, ...cards, ...cards];
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    // Width of one full set (used for seamless wrap)
+    const firstChild = track.children[0] as HTMLElement | null;
+    if (!firstChild) return;
+
+    const itemW = firstChild.offsetWidth + GAP;
+    const setW  = cards.length * itemW;
+
+    function tick(now: number) {
+      const dt = lastRef.current == null ? 0 : (now - lastRef.current) / 1000;
+      lastRef.current = now;
+
+      if (!pauseRef.current) {
+        posRef.current += SPEED * dt;
+        if (posRef.current >= setW) posRef.current -= setW;
+        if (track) track.style.transform = `translateX(${-posRef.current}px)`;
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [cards]);
+
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className="flex items-center justify-center w-11 h-11 rounded-full border border-black/10 bg-white transition-all duration-300"
-      style={{
-        opacity: disabled ? 0.25 : 1,
-        cursor: disabled ? 'default' : 'pointer',
-        boxShadow: disabled ? 'none' : '0 2px 12px rgba(0,0,0,0.08)',
-      }}
-      aria-label={dir === 'left' ? 'Previous' : 'Next'}
+    <div
+      className="overflow-hidden"
+      onMouseEnter={() => { pauseRef.current = true; }}
+      onMouseLeave={() => { pauseRef.current = false; }}
     >
-      {dir === 'left' ? (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M10 3L5 8L10 13" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ) : (
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M6 3L11 8L6 13" stroke="black" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )}
-    </button>
+      <div
+        ref={trackRef}
+        className="flex"
+        style={{ gap: `${GAP}px`, willChange: 'transform', width: 'max-content' }}
+      >
+        {looped.map((card, i) => (
+          <Card key={`${card.src}-${card.name}-${i}`} card={card} />
+        ))}
+      </div>
+    </div>
   );
 }
 
 export default function Collection() {
-  const [current, setCurrent] = useState(0);
-  const trackRef    = useRef<HTMLDivElement>(null);
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const animating   = useRef(false);
   const { query } = useSearch();
 
-  // Filter cards by name or color
   const filtered = query.trim()
     ? CARDS.filter(c =>
         c.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -244,80 +271,26 @@ export default function Collection() {
       )
     : CARDS;
 
-  const totalCards = filtered.length;
-
-  const slideTo = (next: number) => {
-    if (animating.current || !trackRef.current) return;
-    animating.current = true;
-
-    const firstCard = trackRef.current.children[0] as HTMLElement;
-    const gap = 32;
-    const cardW = firstCard ? firstCard.offsetWidth + gap : 0;
-    const targetX = -(next * cardW);
-
-    setCurrent(next);
-
-    gsap.to(trackRef.current, {
-      x: targetX,
-      duration: 0.55,
-      ease: 'power3.inOut',
-      onComplete: () => { animating.current = false; },
-    });
-  };
-
-  const prev = () => { if (current > 0) slideTo(current - 1); };
-  const next = () => { if (current < totalCards - 1) slideTo(current + 1); };
-
   return (
-    <section className="relative w-full bg-white py-24 px-6 md:px-16">
+    <section className="relative w-full bg-white py-24 overflow-hidden">
 
-      {/* Header + arrows */}
-      <div className="flex items-end justify-between mb-12">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.5em] text-gray-400 mb-3">The Collection</p>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight text-black">
-            Crafted for every day.
-          </h2>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Arrow dir="left"  onClick={prev} disabled={current === 0} />
-          <div className="flex gap-1.5 px-2">
-            {filtered.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => slideTo(i)}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  width:  i === current ? '20px' : '6px',
-                  height: '6px',
-                  backgroundColor: i === current ? 'black' : 'rgba(0,0,0,0.2)',
-                }}
-                aria-label={`Go to card ${i + 1}`}
-              />
-            ))}
-          </div>
-          <Arrow dir="right" onClick={next} disabled={current === totalCards - 1} />
-        </div>
+      {/* Header */}
+      <div className="px-6 md:px-16 mb-12">
+        <p className="text-[10px] uppercase tracking-[0.5em] text-gray-400 mb-3">The Collection</p>
+        <h2 className="text-4xl md:text-5xl font-black tracking-tight text-black">
+          Crafted for every day.
+        </h2>
       </div>
 
-      {/* Carousel viewport */}
-      <div ref={viewportRef} className="overflow-hidden">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-3 text-center">
-            <p className="text-sm text-gray-400 uppercase tracking-[0.4em]">No results for "{query}"</p>
-            <p className="text-xs text-gray-300">Try searching by color — Navy Blue, Sky Blue, or Olive Green</p>
-          </div>
-        ) : (
-          <div ref={trackRef} className="flex gap-8" style={{ willChange: 'transform' }}>
-            {filtered.map((card, i) => (
-              <div key={`${card.src}-${i}`} className="flex-shrink-0">
-                <Card card={card} />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Infinite scroll or empty state */}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-6">
+          <p className="text-sm text-gray-400 uppercase tracking-[0.4em]">No results for "{query}"</p>
+          <p className="text-xs text-gray-300">Try searching by color — Navy Blue, Sky Blue, or Olive Green</p>
+        </div>
+      ) : (
+        <InfiniteTrack cards={filtered} />
+      )}
 
     </section>
   );

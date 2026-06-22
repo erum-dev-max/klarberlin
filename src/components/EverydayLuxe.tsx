@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import Lenis from 'lenis';
-import gsap from 'gsap';
 
 interface JewelryCard {
   id: number;
@@ -102,35 +100,91 @@ function LuxeCard({ card }: { card: JewelryCard }) {
   );
 }
 
-export default function EverydayLuxe({ onClose }: { onClose: () => void }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+/* ── Infinite horizontal marquee row ── */
+const CARD_WIDTH = 220;  // px
+const CARD_GAP   = 20;   // px
+const SPEED      = 40;   // px per second  (positive = left, negative = right)
 
+function MarqueeRow({ cards, direction = 1 }: { cards: JewelryCard[]; direction?: 1 | -1 }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const posRef   = useRef(0);
+  const rafRef   = useRef<number>(0);
+  const pauseRef = useRef(false);
+
+  // Duplicate cards enough to fill >2 viewport widths so the loop is seamless
+  const repeated = [...cards, ...cards, ...cards, ...cards];
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const itemWidth  = CARD_WIDTH + CARD_GAP;
+    const totalWidth = cards.length * itemWidth;  // one full set width
+
+    let lastTime: number | null = null;
+
+    function tick(now: number) {
+      if (!pauseRef.current) {
+        const dt = lastTime == null ? 0 : (now - lastTime) / 1000;
+        posRef.current += SPEED * direction * dt;
+
+        // Wrap: when we've scrolled exactly one full set, reset to 0
+        if (direction === 1 && posRef.current >= totalWidth) posRef.current -= totalWidth;
+        if (direction === -1 && posRef.current <= -totalWidth) posRef.current += totalWidth;
+
+        if (track) track.style.transform = `translateX(${-posRef.current}px)`;
+      }
+      lastTime = now;
+      rafRef.current = requestAnimationFrame(tick);
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [cards, direction]);
+
+  return (
+    <div
+      style={{ overflow: 'hidden', width: '100%' }}
+      onMouseEnter={() => { pauseRef.current = true; }}
+      onMouseLeave={() => { pauseRef.current = false; }}
+    >
+      <div
+        ref={trackRef}
+        style={{
+          display: 'flex',
+          gap: `${CARD_GAP}px`,
+          willChange: 'transform',
+          width: 'max-content',
+        }}
+      >
+        {repeated.map((card, i) => (
+          <div
+            key={`${card.id}-${i}`}
+            style={{ width: `${CARD_WIDTH}px`, flexShrink: 0 }}
+          >
+            <LuxeCard card={card} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* Split 16 cards into two rows of 8 */
+const ROW_A = PIECES.slice(0, 8);
+const ROW_B = PIECES.slice(8, 16);
+
+export default function EverydayLuxe({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
-  }, []);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const lenis = new Lenis({
-      wrapper: el,
-      content: el.firstElementChild as HTMLElement,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      smoothWheel: true,
-    });
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
-    return () => { lenis.destroy(); };
   }, []);
 
   return (
     <div className="fixed inset-0 z-[80] flex flex-col" style={{ backgroundColor: '#0a0a0a' }}>
 
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-8 md:px-16 py-6" style={{ backgroundColor: '#0a0a0a' }}>
+      <div className="flex-shrink-0 flex items-center justify-between px-8 md:px-16 py-6">
         <div>
           <p style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", fontSize: '10px', fontWeight: 600, letterSpacing: '0.4em', textTransform: 'uppercase', color: 'rgba(201,168,76,0.6)', marginBottom: '4px' }}>
             Dual Elegance Jewelry
@@ -147,28 +201,17 @@ export default function EverydayLuxe({ onClose }: { onClose: () => void }) {
         </button>
       </div>
 
-      {/* Smooth scrollable content */}
-      <div ref={scrollRef} className="flex-1" style={{ overflow: 'hidden', position: 'relative' }}>
-        <div>
-          {/* 4×4 grid = 16 cards */}
-          <div
-            className="px-8 md:px-16 py-8"
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}
-          >
-            {PIECES.map(card => (
-              <div key={card.id}>
-                <LuxeCard card={card} />
-              </div>
-            ))}
-          </div>
+      {/* Marquee rows */}
+      <div className="flex-1 flex flex-col justify-center gap-5 py-6" style={{ overflow: 'hidden' }}>
+        <MarqueeRow cards={ROW_A} direction={1}  />
+        <MarqueeRow cards={ROW_B} direction={-1} />
+      </div>
 
-          {/* Footer */}
-          <div className="px-8 md:px-16 pb-16 text-center">
-            <p style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", fontSize: '11px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-              All pieces are handcrafted · Free shipping on orders over $150
-            </p>
-          </div>
-        </div>
+      {/* Footer */}
+      <div className="flex-shrink-0 pb-6 text-center">
+        <p style={{ fontFamily: "'Helvetica Neue', Arial, sans-serif", fontSize: '11px', color: 'rgba(201,168,76,0.4)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+          All pieces are handcrafted · Free shipping on orders over $150
+        </p>
       </div>
     </div>
   );

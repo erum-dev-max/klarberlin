@@ -1,36 +1,10 @@
-const OUTFITS = [
-  {
-    id: 1,
-    src: '/navy_shirt.png',
-    label: 'Signature No. 01',
-    name: 'The Berlin Silhouette',
-    desc: 'A structured cut born from Berlin\'s raw architectural lines. Worn as a statement, remembered as a signature.',
-    fabric: '100% Merino Wool Blend',
-    origin: 'Crafted in Berlin',
-    price: '$129',
-    tag: 'Limited Edition',
-    accent: '#1e3a6e',
-  },
-  {
-    id: 2,
-    src: '/sky shirt.png',
-    label: 'Signature No. 02',
-    name: 'The Klar Drift',
-    desc: 'Effortless drape, deliberate form. The Klar Drift moves with you — soft on the surface, precise in every seam.',
-    fabric: '95% Cotton · 5% Elastane',
-    origin: 'Crafted in Berlin',
-    price: '$114',
-    tag: 'New Season',
-    accent: '#2980b9',
-  },
-];
 
 export default function SignatureOutfits() {
   return (
-    <section className="w-full bg-white px-6 md:px-16 py-20">
+    <section className="w-full bg-white px-6 md:px-16 py-8">
 
       {/* Section header */}
-      <div className="flex items-center gap-5 mb-5">
+      <div className="flex items-center gap-5 mb-3">
 
         {/* Icon — a diamond/signature mark */}
         <div
@@ -73,7 +47,7 @@ export default function SignatureOutfits() {
       </div>
 
       {/* Brand statement */}
-      <div className="mb-14" style={{ maxWidth: '620px' }}>
+      <div className="mb-0" style={{ maxWidth: '620px' }}>
         <p style={{
           fontFamily: 'Arial, Helvetica, sans-serif',
           fontSize: '14px',
@@ -89,146 +63,7 @@ export default function SignatureOutfits() {
         </p>
       </div>
 
-      {/* Two cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {OUTFITS.map(outfit => (
-          <div
-            key={outfit.id}
-            className="relative rounded-2xl overflow-hidden"
-            style={{ backgroundColor: '#f5f5f5' }}
-          >
-            {/* Tag */}
-            <div className="absolute top-5 left-5 z-10">
-              <span style={{
-                fontFamily: 'Arial, Helvetica, sans-serif',
-                fontSize: '9px',
-                fontWeight: 700,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: '#ffffff',
-                backgroundColor: '#0a0a0a',
-                padding: '4px 10px',
-                borderRadius: '4px',
-              }}>
-                {outfit.tag}
-              </span>
-            </div>
 
-            {/* Image */}
-            <div
-              className="flex items-center justify-center"
-              style={{ height: '400px', backgroundColor: '#efefef' }}
-            >
-              <img
-                src={outfit.src}
-                alt={outfit.name}
-                className="object-contain"
-                style={{ height: '340px', width: 'auto' }}
-              />
-            </div>
-
-            {/* Details — always visible */}
-            <div className="px-7 py-6" style={{ backgroundColor: '#ffffff' }}>
-
-              {/* Label */}
-              <p style={{
-                fontFamily: 'Arial, Helvetica, sans-serif',
-                fontSize: '10px',
-                fontWeight: 600,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                color: outfit.accent,
-                marginBottom: '6px',
-              }}>
-                {outfit.label}
-              </p>
-
-              {/* Name */}
-              <h3 style={{
-                fontFamily: 'Arial, Helvetica, sans-serif',
-                fontWeight: 900,
-                fontSize: '20px',
-                color: '#0a0a0a',
-                letterSpacing: '-0.01em',
-                marginBottom: '8px',
-                lineHeight: 1.2,
-              }}>
-                {outfit.name}
-              </h3>
-
-              {/* Description */}
-              <p style={{
-                fontFamily: 'Arial, Helvetica, sans-serif',
-                fontSize: '13px',
-                color: 'rgba(0,0,0,0.55)',
-                lineHeight: 1.7,
-                marginBottom: '16px',
-              }}>
-                {outfit.desc}
-              </p>
-
-              {/* Specs row */}
-              <div
-                className="flex items-center justify-between"
-                style={{
-                  borderTop: '1px solid rgba(0,0,0,0.07)',
-                  paddingTop: '14px',
-                }}
-              >
-                <div>
-                  <p style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10px', color: 'rgba(0,0,0,0.35)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2px' }}>
-                    Fabric
-                  </p>
-                  <p style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', fontWeight: 600, color: '#0a0a0a' }}>
-                    {outfit.fabric}
-                  </p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10px', color: 'rgba(0,0,0,0.35)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2px' }}>
-                    Origin
-                  </p>
-                  <p style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', fontWeight: 600, color: '#0a0a0a' }}>
-                    {outfit.origin}
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '10px', color: 'rgba(0,0,0,0.35)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: '2px' }}>
-                    Price
-                  </p>
-                  <p style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '18px', fontWeight: 900, color: '#0a0a0a', letterSpacing: '-0.01em' }}>
-                    {outfit.price}
-                  </p>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <button
-                style={{
-                  marginTop: '16px',
-                  width: '100%',
-                  fontFamily: 'Arial, Helvetica, sans-serif',
-                  fontWeight: 800,
-                  fontSize: '11px',
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  backgroundColor: '#0a0a0a',
-                  color: '#ffffff',
-                  padding: '13px 0',
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.25s ease',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.backgroundColor = outfit.accent)}
-                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#0a0a0a')}
-              >
-                View Piece
-              </button>
-
-            </div>
-          </div>
-        ))}
-      </div>
 
     </section>
   );
