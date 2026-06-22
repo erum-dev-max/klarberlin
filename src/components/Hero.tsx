@@ -131,7 +131,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full h-screen bg-[#020205] text-slate-100 overflow-hidden select-none" id="full-viewport-shader">
+    <section className="relative w-full h-[100dvh] bg-[#020205] text-slate-100 overflow-hidden select-none" id="full-viewport-shader">
       {!loadedTexture ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-[#020205]">
           <div className="w-10 h-10 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
@@ -143,27 +143,27 @@ export default function Hero() {
         <Canvas
           camera={{ position: [0, 0, 1.0], fov: 75 }}
           gl={{ antialias: true, preserveDrawingBuffer: false, powerPreference: 'high-performance' }}
-          style={{ width: '100vw', height: '100vh', position: 'absolute', top: 0, left: 0 }}
+          style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}
         >
           <ambientLight intensity={1.5} />
           <WavingTshirtMesh texture={loadedTexture} />
         </Canvas>
       )}
       
-      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10 overflow-hidden px-4">
         {/* Large KB Background Text */}
         <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none opacity-40">
-          <span className="text-[15rem] md:text-[25rem] font-black text-gray-500 leading-none select-none mix-blend-overlay">
+          <span className="text-[12rem] sm:text-[18rem] md:text-[24rem] lg:text-[32rem] xl:text-[40rem] font-black text-gray-500 leading-none select-none mix-blend-overlay">
             KB
           </span>
         </div>
 
         {/* Foreground Text */}
         <div className="relative z-10 flex flex-col items-center text-center">
-          <h1 className="text-5xl md:text-7xl font-black tracking-widest uppercase text-white mix-blend-overlay opacity-90 drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black tracking-widest uppercase text-white mix-blend-overlay opacity-90 drop-shadow-2xl">
             Klar Berlin
           </h1>
-          <p className="mt-4 text-sm md:text-base font-medium tracking-[0.3em] uppercase text-gray-300">
+          <p className="mt-3 md:mt-5 text-[10px] sm:text-xs md:text-sm lg:text-base font-medium tracking-[0.2em] sm:tracking-[0.3em] uppercase text-gray-300">
             The New Dimension
           </p>
         </div>
