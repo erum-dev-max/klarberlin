@@ -20,6 +20,22 @@ export default function Navbar() {
   const [cartOpen,   setCartOpen]   = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen,   setMenuOpen]   = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // The Hero section is 100vh. Change color to black just before it clears the hero.
+      if (window.scrollY > window.innerHeight - 80) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // initial check
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Letter-by-letter reveal — K, L, A, R … B, E, R, L, I, N
   useEffect(() => {
@@ -53,10 +69,17 @@ export default function Navbar() {
     if (e.key === 'Escape') setSearchOpen(false);
   };
 
+  const textColorClass = isScrolled ? 'text-black' : 'text-white';
+  const bgColorClass = isScrolled ? 'bg-black' : 'bg-white';
+  const borderColorClass = isScrolled 
+    ? 'border-black/30 focus:border-black placeholder-black/30' 
+    : 'border-white/30 focus:border-white placeholder-white/30';
+  const badgeClass = isScrolled ? 'bg-black text-white' : 'bg-white text-black';
+
   return (
     <>
       <nav
-        className="fixed top-0 left-0 w-full z-50 h-20"
+        className="fixed top-0 left-0 w-full z-50 h-20 transition-colors duration-300"
         style={{ backgroundColor: 'transparent' }}
       >
         {/* Left side — hamburger */}
@@ -66,9 +89,9 @@ export default function Navbar() {
             className="flex flex-col gap-[5px] group"
             aria-label="Open menu"
           >
-            <span className="block w-6 h-[1.5px] bg-white group-hover:opacity-50 transition-opacity duration-200" />
-            <span className="block w-4 h-[1.5px] bg-white group-hover:opacity-50 transition-opacity duration-200" />
-            <span className="block w-6 h-[1.5px] bg-white group-hover:opacity-50 transition-opacity duration-200" />
+            <span className={`block w-6 h-[1.5px] ${bgColorClass} group-hover:opacity-50 transition-all duration-300`} />
+            <span className={`block w-4 h-[1.5px] ${bgColorClass} group-hover:opacity-50 transition-all duration-300`} />
+            <span className={`block w-6 h-[1.5px] ${bgColorClass} group-hover:opacity-50 transition-all duration-300`} />
           </button>
         </div>
 
@@ -83,7 +106,7 @@ export default function Navbar() {
                 <span
                   key={`w1-${i}`}
                   ref={el => { lettersRef.current[i] = el; }}
-                  className="inline-block font-black text-white text-xl md:text-2xl"
+                  className={`inline-block font-black ${textColorClass} text-xl md:text-2xl transition-colors duration-300`}
                   style={{
                     fontFamily: 'Arial, Helvetica, sans-serif',
                     textTransform: 'uppercase',
@@ -102,7 +125,7 @@ export default function Navbar() {
                 <span
                   key={`w2-${i}`}
                   ref={el => { lettersRef.current[word1.length + i] = el; }}
-                  className="inline-block font-black text-white text-xl md:text-2xl"
+                  className={`inline-block font-black ${textColorClass} text-xl md:text-2xl transition-colors duration-300`}
                   style={{
                     fontFamily: 'Arial, Helvetica, sans-serif',
                     textTransform: 'uppercase',
@@ -130,7 +153,7 @@ export default function Navbar() {
                 onChange={e => setQuery(e.target.value)}
                 onKeyDown={handleKey}
                 placeholder="Search name or color…"
-                className="bg-transparent border-b border-white/30 focus:border-white outline-none text-sm text-white placeholder-white/30 pb-0.5 transition-colors duration-200"
+                className={`bg-transparent border-b ${borderColorClass} ${textColorClass} outline-none text-sm pb-0.5 transition-all duration-300`}
                 style={{ width: '220px' }}
                 aria-label="Search products"
               />
@@ -142,12 +165,12 @@ export default function Navbar() {
             >
               {searchOpen ? (
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
-                  className="text-white group-hover:opacity-50 transition-opacity duration-200">
+                  className={`${textColorClass} group-hover:opacity-50 transition-colors duration-300`}>
                   <path d="M2 2L16 16M16 2L2 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                  className="text-white group-hover:opacity-50 transition-opacity duration-200">
+                  className={`${textColorClass} group-hover:opacity-50 transition-colors duration-300`}>
                   <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.5"/>
                   <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 </svg>
@@ -162,14 +185,14 @@ export default function Navbar() {
             aria-label="Open cart"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-              className="text-white group-hover:opacity-50 transition-opacity duration-200">
+              className={`${textColorClass} group-hover:opacity-50 transition-colors duration-300`}>
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"
                 stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M3 6h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               <path d="M16 10a4 4 0 01-8 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             {totalCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white text-black text-[9px] font-black flex items-center justify-center">
+              <span className={`absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full ${badgeClass} text-[9px] font-black flex items-center justify-center transition-colors duration-300`}>
                 {totalCount}
               </span>
             )}
